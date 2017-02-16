@@ -208,11 +208,14 @@ public class GameActivity extends AppCompatActivity {
 
     private void updateLocal(DataSnapshot dataSnapshot) {
         if(!turn.equals(player)) {
-            turn = player;
             for(int i = 0; i < 3; i++) {
                 for(int j = 0; j < 3; j++) {
-                    board[i][j] = dataSnapshot.child("board").child(String.valueOf((i * 3) + j + 1))
-                            .getValue(String.class);
+                    if (!board[i][j].equals(dataSnapshot.child("board").child(String.valueOf((i * 3) + j + 1))
+                            .getValue(String.class))) {
+                        turn = player;
+                        board[i][j] = dataSnapshot.child("board").child(String.valueOf((i * 3) + j + 1))
+                                .getValue(String.class);
+                    }
                 }
             }
         }
