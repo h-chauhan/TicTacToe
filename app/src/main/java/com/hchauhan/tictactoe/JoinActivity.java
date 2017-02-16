@@ -17,6 +17,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 public class JoinActivity extends AppCompatActivity {
 
@@ -52,24 +53,32 @@ public class JoinActivity extends AppCompatActivity {
                     String code = String.valueOf(code_editText.getText());
                     if(dataSnapshot.child(code).exists()) {
                         if(dataSnapshot.child(code).child("p2").exists()) {
-                            Toast.makeText(getBaseContext(), "The Game has already started. Please generate a new code.", Toast.LENGTH_SHORT)
-                                    .show();
+                            Toast.makeText(getBaseContext(),
+                                    "The Game has already started. Please generate a new code.",
+                                    Toast.LENGTH_SHORT).show();
                         } else {
                             c = Calendar.getInstance();
                             if(dataSnapshot.child(code).child("start_time")
                                     .getValue(Long.class) - c.getTimeInMillis() >= 86400000) {
-                                Toast.makeText(getBaseContext(), "The code has expired. Please generate a new code.", Toast.LENGTH_SHORT)
-                                        .show();
+                                Toast.makeText(getBaseContext(),
+                                        "The code has expired. Please generate a new code.",
+                                        Toast.LENGTH_SHORT).show();
                             } else {
-                                String android_id = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
-                                if(dataSnapshot.child(code).child("p1").getValue(String.class) == android_id) {
-                                    Toast.makeText(getBaseContext(), "You can't join a game started by you.", Toast.LENGTH_SHORT)
-                                            .show();
+                                String android_id = Secure.getString(getContentResolver(),
+                                        Secure.ANDROID_ID);
+                                if(android_id.equals(dataSnapshot.child(code).child("p1")
+                                                .getValue(String.class))) {
+                                    Toast.makeText(getBaseContext(),
+                                            "You can't join a game started by you.",
+                                            Toast.LENGTH_SHORT).show();
                                 } else {
-                                    myRef.child(String.valueOf(code)).child("p2").setValue(android_id);
-                                    startActivity(new Intent(getBaseContext(), GameActivity.class).putExtra("session_code", code));
-
-                                    Toast.makeText(getBaseContext(), "Game Started!", Toast.LENGTH_SHORT).show();
+                                    myRef.child(String.valueOf(code)).child("p2")
+                                            .setValue(android_id);
+                                    Toast.makeText(getBaseContext(), "Game Started!",
+                                            Toast.LENGTH_SHORT).show();
+                                    finish();
+                                    startActivity(new Intent(getBaseContext(), GameActivity.class)
+                                            .putExtra("session_code", code));
                                 }
                             }
                         }
@@ -79,5 +88,12 @@ public class JoinActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+//        finish();
+        android.os.Process.killProcess(android.os.Process.myPid());
+        super.onBackPressed();
     }
 }

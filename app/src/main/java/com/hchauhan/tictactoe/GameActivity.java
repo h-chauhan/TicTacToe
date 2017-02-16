@@ -10,4 +10,11 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
     }
+
+    @Override
+    public void onBackPressed() {
+//        finish();
+        android.os.Process.killProcess(android.os.Process.myPid());
+        super.onBackPressed();
+    }
 }

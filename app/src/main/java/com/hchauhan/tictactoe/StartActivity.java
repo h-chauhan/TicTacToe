@@ -38,14 +38,12 @@ public class StartActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 while (!isCodeGenerated) {
-
                     Random random = new Random();
                     int n = random.nextInt(9000) + 1000;
 
                     if(dataSnapshot.child(String.valueOf(n)).exists()) {
                         if(dataSnapshot.child(String.valueOf(n)).child("p1").exists()) {
                             c = Calendar.getInstance();
-
                             if(dataSnapshot.child(String.valueOf(n)).child("start_time")
                                     .getValue(Long.class) - c.getTimeInMillis() >= 86400000) {
                                 startSession(n);
@@ -60,7 +58,9 @@ public class StartActivity extends AppCompatActivity {
 
                 if(isCodeGenerated) {
                     if(dataSnapshot.child(String.valueOf(sessionCode)).child("p2").exists()) {
-                        Toast.makeText(getBaseContext(), "Game Started!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "Game Started!", Toast.LENGTH_SHORT)
+                                .show();
+                        finish();
                         startActivity(new Intent(getBaseContext(), GameActivity.class)
                                 .putExtra("session_code", sessionCode));
                     }
@@ -87,5 +87,12 @@ public class StartActivity extends AppCompatActivity {
 
         TextView textView = (TextView) findViewById(R.id.code_text);
         textView.setText(String.valueOf(n));
+    }
+
+    @Override
+    public void onBackPressed() {
+//        finish();
+        android.os.Process.killProcess(android.os.Process.myPid());
+        super.onBackPressed();
     }
 }
