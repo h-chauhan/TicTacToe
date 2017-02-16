@@ -57,7 +57,8 @@
             android:id="@+id/x_score_text"
             android:layout_weight="1"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-            android:fontFamily="casual" />
+            android:fontFamily="casual"
+            android:textAlignment="center" />
 
         <TextView
             android:text="O -  0"
@@ -68,7 +69,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Display1"
             android:fontFamily="casual"
             android:layout_gravity="end"
-            android:textAlignment="textEnd" />
+            android:textAlignment="center" />
     </LinearLayout>
 
     <View
@@ -81,7 +82,7 @@
         android:layout_alignParentStart="true" />
 
     <TextView
-        android:text="Turn: "
+        android:text="Turn: X"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/textView9"
@@ -89,38 +90,19 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:fontFamily="casual" />
-
-    <TextView
-        android:text="X"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/view2"
-        android:layout_toRightOf="@+id/textView9"
-        android:layout_toEndOf="@+id/textView9"
-        android:id="@+id/turn_text"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:fontFamily="casual" />
-
-    <Button
-        android:text="Restart Game"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/restart_btn"
+        android:fontFamily="casual"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        style="@style/Widget.AppCompat.Button.Colored" />
+        android:textAlignment="center" />
 
     <LinearLayout
         android:layout_width="270dp"
         android:layout_height="270dp"
-        android:layout_below="@+id/textView9"
         android:background="@mipmap/board"
         android:orientation="vertical"
-        android:layout_centerHorizontal="true">
+        android:layout_below="@+id/textView9"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"

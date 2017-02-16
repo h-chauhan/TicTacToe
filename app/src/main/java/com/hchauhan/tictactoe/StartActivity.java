@@ -58,11 +58,11 @@ public class StartActivity extends AppCompatActivity {
 
                 if(isCodeGenerated) {
                     if(dataSnapshot.child(String.valueOf(sessionCode)).child("p2").exists()) {
-                        Toast.makeText(getBaseContext(), "Game Started!", Toast.LENGTH_SHORT)
-                                .show();
+                        Toast.makeText(getBaseContext(), "Game Started!", Toast.LENGTH_SHORT).show();
                         finish();
                         startActivity(new Intent(getBaseContext(), GameActivity.class)
-                                .putExtra("session_code", sessionCode));
+                                .putExtra("session_code", String.valueOf(sessionCode))
+                                .putExtra("my_player", "X"));
                     }
                 }
             }

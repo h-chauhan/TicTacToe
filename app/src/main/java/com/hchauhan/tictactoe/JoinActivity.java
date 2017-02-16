@@ -78,7 +78,7 @@ public class JoinActivity extends AppCompatActivity {
                                             Toast.LENGTH_SHORT).show();
                                     finish();
                                     startActivity(new Intent(getBaseContext(), GameActivity.class)
-                                            .putExtra("session_code", code));
+                                            .putExtra("session_code", code).putExtra("my_player", "O"));
                                 }
                             }
                         }
