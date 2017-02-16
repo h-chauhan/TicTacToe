@@ -2,10 +2,12 @@ package com.hchauhan.tictactoe;
 
 import android.content.Intent;
 import android.provider.Settings;
+import android.provider.Settings.Secure;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -20,7 +22,9 @@ public class StartActivity extends AppCompatActivity {
 
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("sessions");
-    Calendar c = Calendar.getInstance();
+
+    Calendar c;
+
     boolean isCodeGenerated = false;
     int sessionCode = 0;
 
@@ -34,12 +38,16 @@ public class StartActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 while (!isCodeGenerated) {
+
                     Random random = new Random();
                     int n = random.nextInt(9000) + 1000;
+
                     if(dataSnapshot.child(String.valueOf(n)).exists()) {
                         if(dataSnapshot.child(String.valueOf(n)).child("p1").exists()) {
+                            c = Calendar.getInstance();
+
                             if(dataSnapshot.child(String.valueOf(n)).child("start_time")
-                                    .getValue(Integer.class) - c.get(Calendar.SECOND) >= 86400) {
+                                    .getValue(Long.class) - c.getTimeInMillis() >= 86400000) {
                                 startSession(n);
                             }
                         } else {
@@ -52,6 +60,7 @@ public class StartActivity extends AppCompatActivity {
 
                 if(isCodeGenerated) {
                     if(dataSnapshot.child(String.valueOf(sessionCode)).child("p2").exists()) {
+                        Toast.makeText(getBaseContext(), "Game Started!", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(getBaseContext(), GameActivity.class)
                                 .putExtra("session_code", sessionCode));
                     }
@@ -67,14 +76,16 @@ public class StartActivity extends AppCompatActivity {
     }
 
     private void startSession(int n) {
-        String android_id = Settings.Secure.getString(getContentResolver(),
-                Settings.Secure.ANDROID_ID);
+        String android_id = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
         isCodeGenerated = true;
         sessionCode = n;
+
         myRef.child(String.valueOf(n)).child("p1").setValue(android_id);
-        myRef.child(String.valueOf(n)).child("start_time").setValue(c.get(Calendar.SECOND));
+
+        c = Calendar.getInstance();
+        myRef.child(String.valueOf(n)).child("start_time").setValue(c.getTimeInMillis());
+
         TextView textView = (TextView) findViewById(R.id.code_text);
         textView.setText(String.valueOf(n));
-        Log.e("CODE GENERATED", String.valueOf(n));
     }
 }

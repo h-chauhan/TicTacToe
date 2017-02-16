@@ -1,7 +1,7 @@
 package com.hchauhan.tictactoe;
 
 import android.content.Intent;
-import android.provider.Settings;
+import android.provider.Settings.Secure;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,16 +17,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
-import java.util.Random;
-
-import javax.xml.datatype.Duration;
 
 public class JoinActivity extends AppCompatActivity {
 
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myRef = database.getReference("sessions");
     DataSnapshot dataSnapshot;
-    Calendar c = Calendar.getInstance();
+    Calendar c;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,23 +51,30 @@ public class JoinActivity extends AppCompatActivity {
                 if(code_editText.getText().length() == 4) {
                     String code = String.valueOf(code_editText.getText());
                     if(dataSnapshot.child(code).exists()) {
-                        if(dataSnapshot.child(code).exists()) {
-                            if(dataSnapshot.child(code).child("p2").exists()) {
-                                Toast.makeText(getBaseContext(), "The Game has already started. Please generate a new code.", Toast.LENGTH_SHORT)
+                        if(dataSnapshot.child(code).child("p2").exists()) {
+                            Toast.makeText(getBaseContext(), "The Game has already started. Please generate a new code.", Toast.LENGTH_SHORT)
+                                    .show();
+                        } else {
+                            c = Calendar.getInstance();
+                            if(dataSnapshot.child(code).child("start_time")
+                                    .getValue(Long.class) - c.getTimeInMillis() >= 86400000) {
+                                Toast.makeText(getBaseContext(), "The code has expired. Please generate a new code.", Toast.LENGTH_SHORT)
                                         .show();
                             } else {
-                                String android_id = Settings.Secure.getString(getContentResolver(),
-                                        Settings.Secure.ANDROID_ID);
-                                myRef.child(String.valueOf(code)).child("p2").setValue(android_id);
-                                startActivity(new Intent(getBaseContext(), GameActivity.class)
-                                        .putExtra("session_code", code));
-                                Toast.makeText(getBaseContext(), "Game Started!", Toast.LENGTH_SHORT)
-                                        .show();
+                                String android_id = Secure.getString(getContentResolver(), Secure.ANDROID_ID);
+                                if(dataSnapshot.child(code).child("p1").getValue(String.class) == android_id) {
+                                    Toast.makeText(getBaseContext(), "You can't join a game started by you.", Toast.LENGTH_SHORT)
+                                            .show();
+                                } else {
+                                    myRef.child(String.valueOf(code)).child("p2").setValue(android_id);
+                                    startActivity(new Intent(getBaseContext(), GameActivity.class).putExtra("session_code", code));
+
+                                    Toast.makeText(getBaseContext(), "Game Started!", Toast.LENGTH_SHORT).show();
+                                }
                             }
-                        } else {
-                            Toast.makeText(getBaseContext(), "Invalid Code!", Toast.LENGTH_SHORT)
-                                    .show();
                         }
+                    } else {
+                        Toast.makeText(getBaseContext(), "Invalid Code!", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
