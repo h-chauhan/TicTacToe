@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +27,7 @@ public class GameActivity extends AppCompatActivity {
 
     TextView player_text, turn_text, score_x_text, score_y_text;
     TextView one, two, three, four, five, six, seven, eight, nine;
+    Button restartBtn;
 
     Boolean gameEnd;
 
@@ -57,6 +59,8 @@ public class GameActivity extends AppCompatActivity {
         eight = (TextView) findViewById(R.id.eight);
         nine = (TextView) findViewById(R.id.nine);
 
+        restartBtn = (Button) findViewById(R.id.restartbtn);
+
         startLocal();
         startFB();
         updateUI();
@@ -69,6 +73,7 @@ public class GameActivity extends AppCompatActivity {
                     if(check_draw()) {
                         turn_text.setText("DRAW!");
                         gameEnd = true;
+                        restartBtn.setVisibility(View.VISIBLE);
                     }
                 } else {
                     score_x = dataSnapshot.child("scores").child("X").getValue(Integer.class);
@@ -77,6 +82,7 @@ public class GameActivity extends AppCompatActivity {
                     score_y_text.setText("O - " + String.valueOf(score_y));
                     turn_text.setText(checkWinning() + " WON!");
                     gameEnd = true;
+                    restartBtn.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -149,6 +155,13 @@ public class GameActivity extends AppCompatActivity {
                 play_local(9);
             }
         });
+
+        restartBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myGameRef.child("restart").child(player).setValue(true);
+            }
+        });
     }
 
     private void play_local(int i) {
@@ -165,10 +178,12 @@ public class GameActivity extends AppCompatActivity {
                 if(check_draw()) {
                     turn_text.setText("DRAW!");
                     gameEnd = true;
+                    restartBtn.setVisibility(View.VISIBLE);
                 }
             } else {
                 turn_text.setText(checkWinning() + " WON!");
                 gameEnd = true;
+                restartBtn.setVisibility(View.VISIBLE);
                 if(checkWinning().equals("X")) {
                     score_x += 1;
                     score_x_text.setText("X - " + String.valueOf(score_x));
@@ -194,6 +209,8 @@ public class GameActivity extends AppCompatActivity {
         myGameRef.child("turn").setValue("X");
         myGameRef.child("scores").child("X").setValue(0);
         myGameRef.child("scores").child("O").setValue(0);
+        myGameRef.child("restart").child("X").setValue(false);
+        myGameRef.child("restart").child("O").setValue(false);
         myGameRef.child("first_turn").setValue("X");
     }
 
@@ -209,6 +226,35 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void updateLocal(DataSnapshot dataSnapshot) {
+        if(dataSnapshot.child("restart").child("X").getValue(Boolean.class) &&
+                dataSnapshot.child("restart").child("O").getValue(Boolean.class)) {
+            // Clear Board
+            for(int i = 0; i < 3; i++) {
+                for(int j = 0; j < 3; j++) {
+                    board[i][j] = "-";
+                }
+            }
+            for(int i = 1; i <= 9; i++) {
+                myGameRef.child("board").child(String.valueOf(i)).setValue("-");
+            }
+            // First Turn
+            firstTurn = firstTurn.equals("X") ? "O" : "X";
+            myGameRef.child("first_turn").setValue(firstTurn);
+            // Turn
+            turn = firstTurn;
+            myGameRef.child("turn").setValue(turn);
+            // Restart
+            gameEnd = false;
+            myGameRef.child("restart").child("X").setValue(false);
+            myGameRef.child("restart").child("O").setValue(false);
+            // Scores
+            score_x = dataSnapshot.child("scores").child("X").getValue(Integer.class);
+            score_y = dataSnapshot.child("scores").child("O").getValue(Integer.class);
+            // Restart Button
+            restartBtn.setVisibility(View.GONE);
+            updateUI();
+        }
+
         if(!turn.equals(player)) {
             for(int i = 0; i < 3; i++) {
                 for(int j = 0; j < 3; j++) {
@@ -238,17 +284,6 @@ public class GameActivity extends AppCompatActivity {
         seven.setText(!board[2][0].equals("-") ? board[2][0] : " ");
         eight.setText(!board[2][1].equals("-") ? board[2][1] : " ");
         nine.setText( !board[2][2].equals("-") ? board[2][2] : " ");
-    }
-
-    private void restartGame() {
-        for(int i = 1; i <= 9; i++) {
-            myGameRef.child("board").child(String.valueOf(i)).setValue("-");
-        }
-        myGameRef.child("turn").setValue("X");
-        myGameRef.child("scores").child("X").setValue(0);
-        myGameRef.child("scores").child("O").setValue(0);
-        myGameRef.child("first_turn").setValue("X");
-
     }
 
     private boolean is_valid_move(int i) {
