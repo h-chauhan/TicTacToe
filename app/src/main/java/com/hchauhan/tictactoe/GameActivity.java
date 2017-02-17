@@ -71,6 +71,10 @@ public class GameActivity extends AppCompatActivity {
                         gameEnd = true;
                     }
                 } else {
+                    score_x = dataSnapshot.child("scores").child("X").getValue(Integer.class);
+                    score_y = dataSnapshot.child("scores").child("O").getValue(Integer.class);
+                    score_x_text.setText("X - " + String.valueOf(score_x));
+                    score_y_text.setText("O - " + String.valueOf(score_y));
                     turn_text.setText(checkWinning() + " WON!");
                     gameEnd = true;
                 }
@@ -165,6 +169,15 @@ public class GameActivity extends AppCompatActivity {
             } else {
                 turn_text.setText(checkWinning() + " WON!");
                 gameEnd = true;
+                if(checkWinning().equals("X")) {
+                    score_x += 1;
+                    score_x_text.setText("X - " + String.valueOf(score_x));
+                    myGameRef.child("scores").child(checkWinning()).setValue(score_x);
+                } else {
+                    score_y += 1;
+                    score_y_text.setText("O - " + String.valueOf(score_y));
+                    myGameRef.child("scores").child(checkWinning()).setValue(score_y);
+                }
             }
         }
     }
