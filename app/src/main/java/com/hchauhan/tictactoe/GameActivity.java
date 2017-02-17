@@ -17,33 +17,17 @@ import com.google.firebase.database.ValueEventListener;
 public class GameActivity extends AppCompatActivity {
 
     String[][] board = new String[3][3];
-    String turn;
-    String firstTurn;
+    String turn, firstTurn, code, player;
 
-    String code;
-    String player;
-
-    int score_x;
-    int score_y;
+    int score_x, score_y;
 
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference myGameRef;
 
-    TextView player_text;
-    TextView turn_text;
+    TextView player_text, turn_text, score_x_text, score_y_text;
+    TextView one, two, three, four, five, six, seven, eight, nine;
 
-    TextView score_x_text;
-    TextView score_y_text;
-
-    TextView one;
-    TextView two;
-    TextView three;
-    TextView four;
-    TextView five;
-    TextView six;
-    TextView seven;
-    TextView eight;
-    TextView nine;
+    Boolean gameEnd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,9 +68,11 @@ public class GameActivity extends AppCompatActivity {
                 if(checkWinning().equals("-")) {
                     if(check_draw()) {
                         turn_text.setText("DRAW!");
+                        gameEnd = true;
                     }
                 } else {
                     turn_text.setText(checkWinning() + " WON!");
+                    gameEnd = true;
                 }
             }
 
@@ -162,20 +148,24 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void play_local(int i) {
-        if(turn.equals(player)) {
-            if(is_valid_move(i)) {
-                board[(i-1)/3][(i-1)%3] = player;
+        if(!gameEnd) {
+            if(turn.equals(player)) {
+                if(is_valid_move(i)) {
+                    board[(i-1)/3][(i-1)%3] = player;
+                }
             }
-        }
-        turn = player.equals("X") ? "O" : "X";
-        updateUI();
-        updateFB(i);
-        if(checkWinning().equals("-")) {
-            if(check_draw()) {
-                turn_text.setText("DRAW!");
+            turn = player.equals("X") ? "O" : "X";
+            updateUI();
+            updateFB(i);
+            if(checkWinning().equals("-")) {
+                if(check_draw()) {
+                    turn_text.setText("DRAW!");
+                    gameEnd = true;
+                }
+            } else {
+                turn_text.setText(checkWinning() + " WON!");
+                gameEnd = true;
             }
-        } else {
-            turn_text.setText(checkWinning() + " WON!");
         }
     }
 
@@ -200,10 +190,9 @@ public class GameActivity extends AppCompatActivity {
                 board[i][j] = "-";
             }
         }
-        turn = "X";
-        score_x = 0;
-        score_y = 0;
-        firstTurn = "X";
+        turn = firstTurn = "X";
+        score_x = score_y = 0;
+        gameEnd = false;
     }
 
     private void updateLocal(DataSnapshot dataSnapshot) {
@@ -238,12 +227,6 @@ public class GameActivity extends AppCompatActivity {
         nine.setText( !board[2][2].equals("-") ? board[2][2] : " ");
     }
 
-    @Override
-    public void onBackPressed() {
-        android.os.Process.killProcess(android.os.Process.myPid());
-        super.onBackPressed();
-    }
-
     private void restartGame() {
         for(int i = 1; i <= 9; i++) {
             myGameRef.child("board").child(String.valueOf(i)).setValue("-");
@@ -263,7 +246,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private String checkWinning() {
-        for(int i = 0; i < 2; i++) {
+        for(int i = 0; i < 3; i++) {
             if(board[i][0].equals(board[i][1]) && board[i][0].equals(board[i][2])) {
                 return board[i][0];
             }
@@ -289,5 +272,11 @@ public class GameActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        android.os.Process.killProcess(android.os.Process.myPid());
+        super.onBackPressed();
     }
 }
