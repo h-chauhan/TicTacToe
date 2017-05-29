@@ -174,27 +174,27 @@ public class GameActivity extends AppCompatActivity {
             if(turn.equals(player)) {
                 if(is_valid_move(i)) {
                     board[(i-1)/3][(i-1)%3] = player;
-                }
-            }
-            turn = player.equals("X") ? "O" : "X";
-            updateUI();
-            updateFB(i);
-            if(checkWinning().equals("-")) {
-                if(check_draw()) {
-                    turn_text.setText("DRAW!");
-                    gameEnd = true;
-                }
-            } else {
-                turn_text.setText(checkWinning() + " WON!");
-                gameEnd = true;
-                if(checkWinning().equals("X")) {
-                    score_x += 1;
-                    score_x_text.setText("X - " + String.valueOf(score_x));
-                    myGameRef.child("scores").child(checkWinning()).setValue(score_x);
-                } else {
-                    score_y += 1;
-                    score_y_text.setText("O - " + String.valueOf(score_y));
-                    myGameRef.child("scores").child(checkWinning()).setValue(score_y);
+                    turn = player.equals("X") ? "O" : "X";
+                    updateUI();
+                    updateFB(i);
+                    if(checkWinning().equals("-")) {
+                        if(check_draw()) {
+                            turn_text.setText("DRAW!");
+                            gameEnd = true;
+                        }
+                    } else {
+                        turn_text.setText(checkWinning() + " WON!");
+                        gameEnd = true;
+                        if(checkWinning().equals("X")) {
+                            score_x += 1;
+                            score_x_text.setText("X - " + String.valueOf(score_x));
+                            myGameRef.child("scores").child(checkWinning()).setValue(score_x);
+                        } else {
+                            score_y += 1;
+                            score_y_text.setText("O - " + String.valueOf(score_y));
+                            myGameRef.child("scores").child(checkWinning()).setValue(score_y);
+                        }
+                    }
                 }
             }
         }
