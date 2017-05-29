@@ -1,9 +1,10 @@
 package com.hchauhan.tictactoe;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.provider.Settings.Secure;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +18,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
-import java.util.Objects;
 
 public class JoinActivity extends AppCompatActivity {
 
@@ -26,14 +26,25 @@ public class JoinActivity extends AppCompatActivity {
     DataSnapshot dataSnapshot;
     Calendar c;
 
+    ProgressDialog pd;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
 
+        final String[] code = {"0000"};
+
+        pd = new ProgressDialog(JoinActivity.this);
+        pd.setCancelable(false);
+        pd.setCanceledOnTouchOutside(false);
+        pd.setMessage("Please wait");
+        pd.show();
+
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
+                pd.dismiss();
                 dataSnapshot = snapshot;
             }
 
@@ -50,35 +61,35 @@ public class JoinActivity extends AppCompatActivity {
             public void onClick(View v) {
                 EditText code_editText = (EditText) findViewById(R.id.code_edittext);
                 if(code_editText.getText().length() == 4) {
-                    String code = String.valueOf(code_editText.getText());
-                    if(dataSnapshot.child(code).exists()) {
-                        if(dataSnapshot.child(code).child("p2").exists()) {
+                    code[0] = String.valueOf(code_editText.getText());
+                    if(dataSnapshot.child(code[0]).exists()) {
+                        if(dataSnapshot.child(code[0]).child("p2").exists()) {
                             Toast.makeText(getBaseContext(),
                                     "The Game has already started. Please generate a new code.",
-                                    Toast.LENGTH_SHORT).show();
+                                    Toast.LENGTH_LONG).show();
                         } else {
                             c = Calendar.getInstance();
-                            if(dataSnapshot.child(code).child("start_time")
+                            if(dataSnapshot.child(code[0]).child("start_time")
                                     .getValue(Long.class) - c.getTimeInMillis() >= 86400000) {
                                 Toast.makeText(getBaseContext(),
                                         "The code has expired. Please generate a new code.",
-                                        Toast.LENGTH_SHORT).show();
+                                        Toast.LENGTH_LONG).show();
                             } else {
                                 String android_id = Secure.getString(getContentResolver(),
                                         Secure.ANDROID_ID);
-                                if(android_id.equals(dataSnapshot.child(code).child("p1")
+                                if(android_id.equals(dataSnapshot.child(code[0]).child("p1")
                                                 .getValue(String.class))) {
                                     Toast.makeText(getBaseContext(),
                                             "You can't join a game started by you.",
-                                            Toast.LENGTH_SHORT).show();
+                                            Toast.LENGTH_LONG).show();
                                 } else {
-                                    myRef.child(String.valueOf(code)).child("p2")
+                                    myRef.child(String.valueOf(code[0])).child("p2")
                                             .setValue(android_id);
                                     Toast.makeText(getBaseContext(), "Game Started!",
-                                            Toast.LENGTH_SHORT).show();
-                                    finish();
+                                            Toast.LENGTH_LONG).show();
                                     startActivity(new Intent(getBaseContext(), GameActivity.class)
-                                            .putExtra("session_code", code).putExtra("my_player", "O"));
+                                            .putExtra("session_code", code[0]).putExtra("my_player", "O"));
+                                    finish();
                                 }
                             }
                         }
@@ -92,8 +103,7 @@ public class JoinActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-//        finish();
-        android.os.Process.killProcess(android.os.Process.myPid());
+        this.finish();
         super.onBackPressed();
     }
 }

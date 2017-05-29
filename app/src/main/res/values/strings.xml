@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Tic-Tac-Toe Friends</string>
+    <string name="start_a_game">Start a game</string>
+    <string name="join_a_game">Join a game</string>
+    <string name="tic_tac_toe_friends">Tic-Tac-Toe Friends</string>
+    <string name="share_this_code_with_a_friend_and_ask_to_join_the_game">Share your invite code</string>
+    <string name="waiting_for_your_friend_to_join_the_game">Waiting for your friend to join the game.</string>
+    <string name="enter_code_below_to_join_the_game">Enter code below to join the game</string>
+    <string name="join">join</string>
 </resources>

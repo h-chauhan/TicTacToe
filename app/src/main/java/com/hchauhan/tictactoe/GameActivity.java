@@ -1,11 +1,13 @@
 package com.hchauhan.tictactoe;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -13,6 +15,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class GameActivity extends AppCompatActivity {
@@ -26,10 +31,11 @@ public class GameActivity extends AppCompatActivity {
     DatabaseReference myGameRef;
 
     TextView player_text, turn_text, score_x_text, score_y_text;
-    TextView one, two, three, four, five, six, seven, eight, nine;
-    Button restartBtn;
+    ImageView one, two, three, four, five, six, seven, eight, nine;
 
     Boolean gameEnd;
+    private Button restartBtn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,23 +49,24 @@ public class GameActivity extends AppCompatActivity {
         myGameRef = database.getReference("games").child(code);
 
         player_text = (TextView) findViewById(R.id.my_player_text);
-        player_text.setText(player);
+        player_text.setText("You are: " + player);
 
         turn_text = (TextView) findViewById(R.id.turn_text);
+
         score_x_text = (TextView) findViewById(R.id.x_score_text);
         score_y_text = (TextView) findViewById(R.id.y_score_text);
 
-        one = (TextView) findViewById(R.id.one);
-        two = (TextView) findViewById(R.id.two);
-        three = (TextView) findViewById(R.id.three);
-        four = (TextView) findViewById(R.id.four);
-        five = (TextView) findViewById(R.id.five);
-        six = (TextView) findViewById(R.id.six);
-        seven = (TextView) findViewById(R.id.seven);
-        eight = (TextView) findViewById(R.id.eight);
-        nine = (TextView) findViewById(R.id.nine);
+        one = (ImageView) findViewById(R.id.one);
+        two = (ImageView) findViewById(R.id.two);
+        three = (ImageView) findViewById(R.id.three);
+        four = (ImageView) findViewById(R.id.four);
+        five = (ImageView) findViewById(R.id.five);
+        six = (ImageView) findViewById(R.id.six);
+        seven = (ImageView) findViewById(R.id.seven);
+        eight = (ImageView) findViewById(R.id.eight);
+        nine = (ImageView) findViewById(R.id.nine);
 
-        restartBtn = (Button) findViewById(R.id.restartbtn);
+        restartBtn = (Button) findViewById(R.id.restart_btn);
 
         startLocal();
         startFB();
@@ -73,7 +80,6 @@ public class GameActivity extends AppCompatActivity {
                     if(check_draw()) {
                         turn_text.setText("DRAW!");
                         gameEnd = true;
-                        restartBtn.setVisibility(View.VISIBLE);
                     }
                 } else {
                     score_x = dataSnapshot.child("scores").child("X").getValue(Integer.class);
@@ -82,7 +88,6 @@ public class GameActivity extends AppCompatActivity {
                     score_y_text.setText("O - " + String.valueOf(score_y));
                     turn_text.setText(checkWinning() + " WON!");
                     gameEnd = true;
-                    restartBtn.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -178,12 +183,10 @@ public class GameActivity extends AppCompatActivity {
                 if(check_draw()) {
                     turn_text.setText("DRAW!");
                     gameEnd = true;
-                    restartBtn.setVisibility(View.VISIBLE);
                 }
             } else {
                 turn_text.setText(checkWinning() + " WON!");
                 gameEnd = true;
-                restartBtn.setVisibility(View.VISIBLE);
                 if(checkWinning().equals("X")) {
                     score_x += 1;
                     score_x_text.setText("X - " + String.valueOf(score_x));
@@ -251,7 +254,6 @@ public class GameActivity extends AppCompatActivity {
             score_x = dataSnapshot.child("scores").child("X").getValue(Integer.class);
             score_y = dataSnapshot.child("scores").child("O").getValue(Integer.class);
             // Restart Button
-            restartBtn.setVisibility(View.GONE);
             updateUI();
         }
 
@@ -273,17 +275,118 @@ public class GameActivity extends AppCompatActivity {
     private void updateUI() {
         score_x_text.setText("X - " + String.valueOf(score_x));
         score_y_text.setText("O - " + String.valueOf(score_y));
-        turn_text.setText("Turn - " + turn);
+        turn_text.setText(turn);
 
-        one.setText(  !board[0][0].equals("-") ? board[0][0] : " ");
-        two.setText(  !board[0][1].equals("-") ? board[0][1] : " ");
-        three.setText(!board[0][2].equals("-") ? board[0][2] : " ");
-        four.setText( !board[1][0].equals("-") ? board[1][0] : " ");
-        five.setText( !board[1][1].equals("-") ? board[1][1] : " ");
-        six.setText(  !board[1][2].equals("-") ? board[1][2] : " ");
-        seven.setText(!board[2][0].equals("-") ? board[2][0] : " ");
-        eight.setText(!board[2][1].equals("-") ? board[2][1] : " ");
-        nine.setText( !board[2][2].equals("-") ? board[2][2] : " ");
+        switch (board[0][0]) {
+            case "X":
+                one.setImageResource(R.drawable.cross);
+                break;
+            case "O":
+                one.setImageResource(R.drawable.knot);
+                break;
+            default:
+                one.setImageDrawable(null);
+                break;
+        }
+
+        switch (board[0][1]) {
+            case "X":
+                two.setImageResource(R.drawable.cross);
+                break;
+            case "O":
+                two.setImageResource(R.drawable.knot);
+                break;
+            default:
+                two.setImageDrawable(null);
+                break;
+        }
+
+        switch (board[0][2]) {
+            case "X":
+                three.setImageResource(R.drawable.cross);
+                break;
+            case "O":
+                three.setImageResource(R.drawable.knot);
+                break;
+            default:
+                three.setImageDrawable(null);
+                break;
+        }
+
+        switch (board[1][0]) {
+            case "X":
+                four.setImageResource(R.drawable.cross);
+                break;
+            case "O":
+                four.setImageResource(R.drawable.knot);
+                break;
+            default:
+                four.setImageDrawable(null);
+                break;
+        }
+
+        switch (board[1][1]) {
+            case "X":
+                five.setImageResource(R.drawable.cross);
+                break;
+            case "O":
+                five.setImageResource(R.drawable.knot);
+                break;
+            default:
+                five.setImageDrawable(null);
+                break;
+        }
+
+        switch (board[1][2]) {
+            case "X":
+                six.setImageResource(R.drawable.cross);
+                break;
+            case "O":
+                six.setImageResource(R.drawable.knot);
+                break;
+            default:
+                six.setImageDrawable(null);
+                break;
+        }
+
+        switch (board[2][0]) {
+            case "X":
+                seven.setImageResource(R.drawable.cross);
+                break;
+            case "O":
+                seven.setImageResource(R.drawable.knot);
+                break;
+            default:
+                seven.setImageDrawable(null);
+                break;
+        }
+
+        switch (board[2][1]) {
+            case "X":
+                eight.setImageResource(R.drawable.cross);
+                break;
+            case "O":
+                eight.setImageResource(R.drawable.knot);
+                break;
+            default:
+                eight.setImageDrawable(null);
+                break;
+        }
+
+        switch (board[2][2]) {
+            case "X":
+                nine.setImageResource(R.drawable.cross);
+                break;
+            case "O":
+                nine.setImageResource(R.drawable.knot);
+                break;
+            default:
+                nine.setImageDrawable(null);
+                break;
+        }
+
+
+
     }
 
     private boolean is_valid_move(int i) {
@@ -324,6 +427,7 @@ public class GameActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        finish();
         android.os.Process.killProcess(android.os.Process.myPid());
         super.onBackPressed();
     }
